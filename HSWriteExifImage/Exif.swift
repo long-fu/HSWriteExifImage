@@ -39,62 +39,7 @@ public func readImageExif(file path: URL ) -> [String:Any] {
 }
 
 public extension UIImage {
-    func waterMarkedImage(location: CLLocation) -> UIImage{
-        
-        let imageWidth = self.size.width
-        let textWidth = imageWidth * 0.33
-        
-        let text0 = "海拔:" + String.init(format: "%d米", Int(location.altitude))
-        
-        let text1 = "经纬度:" + "xxxxx"
-        
-        let textSize = textWidth / CGFloat(text1.count) * 2.0
-        let textFont = UIFont.systemFont(ofSize: textSize)
-        
-        
-        // 这里自适应 font size 需要进行实验
-        let textAttributes = [NSAttributedString.Key.foregroundColor:#colorLiteral(red: 1.0, green: 1.0, blue: 1.0, alpha: 1.0),
-                              NSAttributedString.Key.font: textFont,
-                              NSAttributedString.Key.backgroundColor:UIColor.clear]
-        
-        let textSize0 = NSString(string: text0).size(withAttributes: textAttributes)
-        
-        var textFrame0 = CGRect(origin: CGPoint.zero, size: textSize0)
-        
-        let textSize1 = NSString(string: text1).size(withAttributes: textAttributes)
-        
-        var textFrame1 = CGRect(origin: CGPoint.zero, size: textSize1)
-        
-        let text2 = "时间:" + "4551212"
-        
-        let textSize2 = NSString(string: text2).size(withAttributes: textAttributes)
-        
-        var textFrame2 = CGRect(origin: CGPoint.zero, size: textSize2)
-        
-        let imageSize = self.size
-        
-        let y0 = imageSize.height - textFrame2.height - textFrame1.height - textFrame0.height - 70.0
-        let x0:CGFloat = 30.0
-        textFrame0.origin = CGPoint(x: x0, y: y0)
-        
-        let y1 = textFrame0.maxY + 15
-        let x1:CGFloat = x0
-        textFrame1.origin = CGPoint(x: x1, y: y1)
-        
-        let y2 = textFrame1.maxY + 15
-        textFrame2.origin = CGPoint(x: x1, y: y2)
-        
-        // 开始给图片添加文字水印
-        UIGraphicsBeginImageContext(imageSize)
-        self.draw(in: CGRect.init(origin: CGPoint.zero, size: imageSize))
-        NSString(string: text0).draw(in: textFrame0, withAttributes: textAttributes)
-        NSString(string: text1).draw(in: textFrame1, withAttributes: textAttributes)
-        NSString(string: text2).draw(in: textFrame2, withAttributes: textAttributes)
-        let waterMarkedImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
-        return waterMarkedImage!
-    }
+    
     func writeExif(mediaMetadata: NSDictionary,location: CLLocation?, heading: CLHeading? = nil) -> Data? {
         
         guard let imageData = self.jpegData(compressionQuality: 1), let imgSource = CGImageSourceCreateWithData(imageData as CFData, nil) else {
@@ -102,6 +47,7 @@ public extension UIImage {
         }
         
         let metadataAsMutable = NSMutableDictionary(dictionary: mediaMetadata)
+        metadataAsMutable[kCGImagePropertyOrientation] = self.imageOrientation
         if let location = location {
             let GPSDictionary = location.exifMetadata()
             metadataAsMutable[kCGImagePropertyGPSDictionary] = GPSDictionary

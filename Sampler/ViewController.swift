@@ -154,7 +154,7 @@ extension ViewController: UIImagePickerControllerDelegate, UINavigationControlle
             guard let location = _locationManager?.location else {
                 return
             }
-            let wImage = image.waterMarkedImage(location: location)
+            
             guard let imageData = wImage.writeExif(mediaMetadata: mediaMetadata, location: location) else {
                 return
             }
